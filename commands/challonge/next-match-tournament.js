@@ -25,7 +25,7 @@ class NextMatchTournamentCommand extends Commando.Command{
 	}
 
 	async run(message, args){
-		message.sendMessage("Commande en cours d'écriture")
+		message.channel.sendMessage("Commande en cours d'écriture")
 		/*
 		const {text} = args
 		var participantId = ""
