@@ -21,6 +21,7 @@ var client = new Commando.Client({
 client.registry
 	.registerDefaultTypes()
 	.registerGroup('challonge', 'Challonge')
+	.registerGroup('sangroyale', 'Sang Royale')
 	.registerDefaultGroups()
 	.registerDefaultCommands()
 	.registerCommandsIn(__dirname + "/commands");
