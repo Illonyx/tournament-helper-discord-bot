@@ -9,7 +9,7 @@ class ShowEventsCommand extends Commando.Command{
         name: 'show-events',
         group: 'sangroyale',
         memberName: 'show-events',
-        description: 'Permet de consulter tous les tournois prévus par Sang Royale (en cours de développement). '
+        description: 'Permet de consulter tous les tournois prévus par Sang Royale (commande en cours de conception). '
 
     	});
     
