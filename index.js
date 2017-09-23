@@ -15,8 +15,13 @@ function checkRole(message,rolename){
 	return manager
 }
 
+var botCommandPrefix = "tr-"
+if(!process.env.IS_PRODUCTION){
+	botCommandPrefix = "trx-"
+}
+
 var client = new Commando.Client({
-	commandPrefix : "tr-"
+	commandPrefix : botCommandPrefix
 });
 client.registry
 	.registerDefaultTypes()
