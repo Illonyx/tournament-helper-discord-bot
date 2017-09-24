@@ -26,6 +26,7 @@ class JoinTournamentCommand extends Commando.Command{
 
 	async run(message, args){
 		const {text} = args
+		console.log("ddd" + message.author.username)
 
 		client.participants.index({
 			id:text,
@@ -39,11 +40,12 @@ class JoinTournamentCommand extends Commando.Command{
 							return;
 						}
 					}
+					var testId = message.author.username
 					//Tester le create avec un nom déjà existant?
 					client.participants.create({
 						id: text,
 						participant: {
-							name: message.author.username
+							name: testId
 						},
 						callback: (err, data) => {
 							console.log(err,data)

@@ -4,19 +4,23 @@ const client = challonge.createClient({
   apiKey: process.env.CHALLONGE_USER_TOKEN
 });
 
-class NextMatchTournamentCommand extends Commando.Command{
+class WinnerIsCommand extends Commando.Command{
 
 	constructor(client) {
 
     super(client, {
-        name: 'next-match',
+        name: 'winner-is',
         group: 'challonge',
-        memberName: 'next-match',
-        description: 'Shows the next match a challonge tournament partcipant will do by specifying its code (code is precised in the tournament page)',
-        examples: ["Example: tr-next-match BrawlhallaTourney01"],
+        memberName: 'winner-is',
+        description: 'Allows to register a match result for a tournament by specifying its code (code is precised in the tournament page) and winner name',
+        examples: ["Example: tr-winner-is BrawlhallaTourney01 Brian"],
         args : [{
             key: 'text',
             prompt: 'Precise the tournament code you would like to see your future match',
+            type: 'string'
+        }, {
+            key: 'winnername',
+            prompt: 'Precise the match winner name',
             type: 'string'
         }]
 
@@ -24,11 +28,10 @@ class NextMatchTournamentCommand extends Commando.Command{
     
 	}
 
-	async run(message, args){
+	async run(message, {text, winnername}){
 		
-		
-		const {text} = args
 		var participantId = ""
+		var winnerId = ""
 		var participantIds = [];
 
 		client.participants.index({
@@ -45,10 +48,15 @@ class NextMatchTournamentCommand extends Commando.Command{
 							participantId=data[i + ""].participant.id
 							
 						}
+						console.log("winnername" + winnername)
+						if(data[i + ""] && nameValue == winnername){
+							winnerId=data[i + ""].participant.id
+							
+						}
 
 					}
 
-					console.log("e" + participantId)
+					console.log("e" + winnerId)
 					if(participantId != ""){
 						//Find match to show
 						client.matches.index({
@@ -59,8 +67,30 @@ class NextMatchTournamentCommand extends Commando.Command{
 									
 									for(var i=0;i<Object.keys(data).length;i++){
 										if(data[i + ""] && (data[i + ""].match.state == 'open' || data[i + ""].match.state == 'pending') && (data[i + ""].match.player1Id == participantId || data[i + ""].match.player2Id == participantId)){
-											var summary = this.buildMatchSummary(participantId, data[i + ""].match, participantIds)
-											message.channel.sendMessage(summary)
+											
+											var matchData = data[i + ""].match
+											console.log("f" + matchData.id)
+											client.matches.update({
+												id: text,
+												  id: text,
+												  matchId: matchData.id,
+												  match: {
+												  	scoresCsv: '0-0',
+												  	winnerId: winnerId
+												  },
+												callback: (err, data) => {
+													//console.log(err, data);
+													var msg = this.whoIsTheWinner(participantId, winnerId, matchData, participantIds)
+													message.reply(msg)
+
+												}
+											});
+											
+											
+
+
+
+
 											return;
 										}
 									}
@@ -101,35 +131,28 @@ class NextMatchTournamentCommand extends Commando.Command{
 		
 	}
 
-	buildMatchSummary(participantId, matchData, participantsData){
+
+	whoIsTheWinner(participantId, winnerId, matchData, participantsData){
+
 		console.log('Haha');
 		var msgToBuild = ""
 		var opponentId = ""
 
-		//1 - Find opponent
+		//1 - Write winner
 		if(matchData.player1Id == participantId) opponentId = matchData.player2Id
 		else opponentId = matchData.player1Id
 
 		if(opponentId == null){
 			msgToBuild += "L'adversaire de votre match (round " + matchData.round + ") est encore inconnu."
 		} else {
-			msgToBuild += "Votre prochain match (round " + matchData.round + ") vous opposera à : " + participantsData[opponentId] + ". "
+			msgToBuild += "A l'issue du match (round " + matchData.round + ") contre " + participantsData[opponentId] + ","
+			msgToBuild += " le joueur " + participantsData[winnerId] + " a été déclaré vainqueur"
 		}
 
-		//2 - Find Scheduled time
-		if(matchData.scheduledTime == null){
-			msgToBuild += "L'heure n'a pas encore été définie, ou regarder le reglement du tournoi associé."
-		} else  {
-			msgToBuild += "Le match sera prévu à ce moment : " + matchData.scheduledTime + ". Bonne chance! "
-		}
-
-		return msgToBuild;
+		return msgToBuild
 	}
-
-	
-
 
 
 }
 
-module.exports=NextMatchTournamentCommand;
+module.exports=WinnerIsCommand;
