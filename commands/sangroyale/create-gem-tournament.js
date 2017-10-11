@@ -11,7 +11,8 @@ class CreateGemTournamentCommand extends Commando.Command{
         memberName: 'create-gem-tournament',
         description: 'Commande réservée aux adjoints. Permet de créer un évenement de tournoi à gemmes', 
         userPermissions: ['MANAGE_ROLES'], 
-        examples : [],
+        examples : ['tr-create-gem-tournament "Sang Royale tr" sr123 "2017-09-17 19:30:00" Largosien 500', 
+        	'tr-create-gem-tournament "Sang Royale tr" sr123 "2017-10-17 19:00:00" Skyice 2000 "si tournoi public, Regles optionnelles à respecter, description du tournoi..."'],
         args : [{
             key: 'name',
             prompt: 'Precise the tournament name into quotes',
@@ -49,7 +50,7 @@ class CreateGemTournamentCommand extends Commando.Command{
 			//Receive args and prepare tournament message
 			var now = new Date()
 			var id = "TR" + now.getDate() + now.getMonth() + now.getFullYear() + now.getHours() + now.getMinutes() + now.getSeconds();
-			var capacity = this.returnCapacityWithNumberGems(gemnumber)
+			var capacity = this.returnCapacityWithNumberGems(gemnumber);
 
 
 

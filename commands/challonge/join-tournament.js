@@ -4,7 +4,7 @@ const client = challonge.createClient({
   apiKey: process.env.CHALLONGE_USER_TOKEN
 });
 
-class JoinTournamentCommand extends Commando.Command{
+class JoinTournamentCommand extends Commando.Command {
 
 	constructor(client) {
 
@@ -26,31 +26,48 @@ class JoinTournamentCommand extends Commando.Command{
 
 	async run(message, args){
 		const {text} = args
-		console.log("ddd" + message.author.username)
+
+		var authorName;
+		//Know where message comes from
+		if(message.member){
+			authorName=message.member.displayName
+		} else {
+			authorName=message.author.username
+		}
+		console.log("ss" + authorName)
 
 		client.participants.index({
 			id:text,
 			callback: (err,data) => {
-				console.log(err,data)
-				if (data["0"]) {
+				//console.log(err,data)
+				if (err == null) {
 					
-					for(var i=0;i<Object.keys(data).length;i++){
-						if(data[i + ""] && data[i + ""].participant.name == message.author.username){
-							message.channel.sendMessage("Vous êtes déjà inscrit au tournoi demandé")
-							return;
+					if(data["0"]){
+						//Checker s'il y a des inscrits
+						for(var i=0;i<Object.keys(data).length;i++){
+							if(data[i + ""] && data[i + ""].participant.name == authorName){
+								message.channel.sendMessage("Vous êtes déjà inscrit au tournoi demandé")
+								return;
+							}
 						}
-					}
-					var testId = message.author.username
+					}	
+
 					//Tester le create avec un nom déjà existant?
 					client.participants.create({
 						id: text,
 						participant: {
-							name: testId
+							name: encodeURI("" + authorName)
 						},
 						callback: (err, data) => {
 							console.log(err,data)
-							if(data){
-								message.channel.sendMessage("Votre inscription au tournoi" + text + " a bien été prise en compte")
+							if(err) {
+								message.channel.sendMessage("Erreur lors de l'inscription : le tournoi a déjà commencé")
+							} else {
+								if(data.participant.onWaitingList){
+									message.channel.sendMessage("Le tournoi est complet : vous avez été placé sur liste d'attente")
+								} else {
+									message.channel.sendMessage("Votre inscription au tournoi" + text + " a bien été prise en compte")
+								}
 							}
 						}
 					});
