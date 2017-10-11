@@ -28,6 +28,15 @@ class LeaveTournamentCommand extends Commando.Command{
 		const {text} = args
 		var participantId = ""
 
+		var authorName;
+		//Know where message comes from
+		if(message.member){
+			authorName=message.member.displayName
+		} else {
+			authorName=message.author.username
+		}
+		console.log("ss" + authorName)
+
 		client.participants.index({
 			id:text,
 			callback: (err,data) => {
@@ -35,7 +44,7 @@ class LeaveTournamentCommand extends Commando.Command{
 				if (data["0"]) {
 					
 					for(var i=0;i<Object.keys(data).length;i++){
-						if(data[i + ""] && data[i + ""].participant.name == message.author.username){
+						if(data[i + ""] && data[i + ""].participant.name == authorName){
 							participantId=data[i + ""].participant.id
 						}
 					}
@@ -47,12 +56,12 @@ class LeaveTournamentCommand extends Commando.Command{
 							callback: (err, data) => {
 								console.log(err,data)
 								if(data){
-									message.channel.sendMessage("Votre désinscription au tournoi " + text + " a bien été prise en compte")
+									message.reply("Votre désinscription au tournoi " + text + " a bien été prise en compte")
 								}
 							}
 						});
 					} else {
-						message.channel.sendMessage("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas vous en désinscire :-) ")
+						message.reply("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas vous en désinscire :-) ")
 						return;
 					}
 
@@ -60,7 +69,7 @@ class LeaveTournamentCommand extends Commando.Command{
 
 
 				} else {
-					message.channel.sendMessage("Le code du tournoi a-t-il bien été saisi?")
+					message.reply("Le code du tournoi a-t-il bien été saisi?")
 				}
 
 			}

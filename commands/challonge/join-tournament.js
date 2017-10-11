@@ -46,7 +46,7 @@ class JoinTournamentCommand extends Commando.Command {
 						//Checker s'il y a des inscrits
 						for(var i=0;i<Object.keys(data).length;i++){
 							if(data[i + ""] && data[i + ""].participant.name == authorName){
-								message.channel.sendMessage("Vous êtes déjà inscrit au tournoi demandé")
+								message.reply("Vous êtes déjà inscrit au tournoi demandé")
 								return;
 							}
 						}
@@ -61,12 +61,12 @@ class JoinTournamentCommand extends Commando.Command {
 						callback: (err, data) => {
 							console.log(err,data)
 							if(err) {
-								message.channel.sendMessage("Erreur lors de l'inscription : le tournoi a déjà commencé")
+								message.reply("Erreur lors de l'inscription : le tournoi a déjà commencé")
 							} else {
 								if(data.participant.onWaitingList){
-									message.channel.sendMessage("Le tournoi est complet : vous avez été placé sur liste d'attente")
+									message.reply("Le tournoi est complet : vous avez été placé sur liste d'attente")
 								} else {
-									message.channel.sendMessage("Votre inscription au tournoi" + text + " a bien été prise en compte")
+									message.reply("Votre inscription au tournoi" + text + " a bien été prise en compte")
 								}
 							}
 						}
@@ -74,7 +74,7 @@ class JoinTournamentCommand extends Commando.Command {
 
 
 				} else {
-					message.channel.sendMessage("Le code du tournoi a-t-il bien été saisi?")
+					message.reply("Le code du tournoi a-t-il bien été saisi?")
 				}
 
 			}

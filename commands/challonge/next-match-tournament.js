@@ -31,6 +31,15 @@ class NextMatchTournamentCommand extends Commando.Command{
 		var participantId = ""
 		var participantIds = [];
 
+		var authorName;
+		//Know where message comes from
+		if(message.member){
+			authorName=message.member.displayName
+		} else {
+			authorName=message.author.username
+		}
+		console.log("ss" + authorName)
+
 		client.participants.index({
 			id:text,
 			callback: (err,data) => {
@@ -41,7 +50,7 @@ class NextMatchTournamentCommand extends Commando.Command{
 
 						var nameValue = (data[i + ""].participant.name != "") ? data[i + ""].participant.name : data[i + ""].participant.challongeUsername
 						participantIds[data[i + ""].participant.id] = nameValue
-						if(data[i + ""] && nameValue == message.author.username){
+						if(data[i + ""] && nameValue == authorName){
 							participantId=data[i + ""].participant.id
 							
 						}
@@ -64,10 +73,10 @@ class NextMatchTournamentCommand extends Commando.Command{
 											return;
 										}
 									}
-									message.channel.sendMessage("Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D")
+									message.reply("Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D")
 
 								} else {
-									message.channel.sendMessage("Les matchs du tournoi " + text + " n'ont pas encore été tirés au sort")
+									message.reply("Les matchs du tournoi " + text + " n'ont pas encore été tirés au sort")
 								}
 
 
@@ -82,7 +91,7 @@ class NextMatchTournamentCommand extends Commando.Command{
 
 
 					} else {
-						message.channel.sendMessage("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas effectuer cette action")
+						message.reply("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas effectuer cette action")
 						return;
 					}
 
@@ -90,7 +99,7 @@ class NextMatchTournamentCommand extends Commando.Command{
 
 
 				} else {
-					message.channel.sendMessage("Le code du tournoi a-t-il bien été saisi?")
+					message.reply("Le code du tournoi a-t-il bien été saisi?")
 				}
 
 			}
