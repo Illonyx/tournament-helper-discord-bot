@@ -29,7 +29,7 @@ class ShowEventsCommand extends Commando.Command{
 					} else {
 						kind="Tournoi à gemmes"
 					}
-					return {"name" : event.name, "date" : event.date, "kind" : kind}
+					return {"id" : event.id, "name" : event.name, "date" : event.date, "kind" : kind}
 				})
 				body.sort(function(a,b){
 					var d1 = new Date(a.date)
@@ -37,12 +37,21 @@ class ShowEventsCommand extends Commando.Command{
 					return d1 - d2
 				})
 				for(var i=0; i< body.length; i++){
-					synthesis += "```"
-					synthesis += "Nom : " + body[i].name + "\n"
-					synthesis += "Date : "  + body[i].date + "\n"
-					synthesis += "Type : " + body[i].kind + "\n"
-					synthesis += "```"
+					//Si l'évenement est ancien, ne pas l'afficher
+					console.log("ss?" + body[i].date)
+					var dateEvent = new Date(new String(body[i].date))
+					dateEvent.setHours(dateEvent.getHours() + 3)
+					var sub = dateEvent - Date.now()
+					if(sub >= 0)
+					{
+						synthesis += "```"
+						synthesis += "Nom : " + body[i].name + " / Id : " + body[i].id  + "\n"
+						synthesis += "Date : "  + body[i].date + "\n"
+						synthesis += "Type : " + body[i].kind + "\n"
+						synthesis += "```"
+					}
 				}
+
 				message.channel.sendMessage(synthesis)
 
 			}).catch(function(err){
