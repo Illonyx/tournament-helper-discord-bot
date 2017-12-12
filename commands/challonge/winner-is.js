@@ -20,7 +20,7 @@ class WinnerIsCommand extends Commando.Command{
             type: 'string'
         }, {
             key: 'winnername',
-            prompt: 'Precise the match winner name',
+            prompt: 'Precise the match winner name or one of the winners names',
             type: 'string'
         }]
 
@@ -66,6 +66,12 @@ class WinnerIsCommand extends Commando.Command{
 					}
 
 					console.log("e" + winnerId)
+
+					if(participantId == "" || winnerId == ""){
+						message.reply("Impossible de trouver le vainqueur déclaré pour votre match : faute de frappe? ")
+						return;
+					}
+
 					if(participantId != ""){
 						//Find match to show
 						client.matches.index({
@@ -78,10 +84,12 @@ class WinnerIsCommand extends Commando.Command{
 										if(data[i + ""] && (data[i + ""].match.state == 'open' || data[i + ""].match.state == 'pending') && (data[i + ""].match.player1Id == participantId || data[i + ""].match.player2Id == participantId)){
 											
 											var matchData = data[i + ""].match
-											console.log("f" + matchData.id)
+											if(!this.isLastRoundOver(data, matchData.round)){
+												message.reply("Les matchs du round d'avant ne sont pas encore terminés. Veuillez attendre la fin des matchs d'avant pour commencer votre match/déclarer votre résultat")
+												return; 
+											}
 											client.matches.update({
 												id: text,
-												  id: text,
 												  matchId: matchData.id,
 												  match: {
 												  	scoresCsv: '0-0',
@@ -140,10 +148,43 @@ class WinnerIsCommand extends Commando.Command{
 		
 	}
 
+	isLastRoundOver(data, currentRound){
+
+		//These are the first rounds, no need to wait
+		if(currentRound == 1) return true;
+
+		var matchByRound = {}
+		
+		for(var i=0;i<Object.keys(data).length;i++){
+			if(data[i + ""]){
+				var matchData = data[i + ""].match
+				if(!matchByRound[matchData.round]){
+					matchByRound[matchData.round] = []
+				}
+				matchByRound[matchData.round].push(matchData)
+
+			}
+		}
+		
+		var lastRound = currentRound - 1
+		var allRoundMatches = matchByRound[lastRound + ""]
+		
+		for(var j=0; j < allRoundMatches.length; j++){
+			var match = allRoundMatches[j]
+			if(match.state != "complete"){
+				return false
+			}
+		}
+
+		return true
+		
+
+
+
+	}
 
 	whoIsTheWinner(participantId, winnerId, matchData, participantsData){
 
-		console.log('Haha');
 		var msgToBuild = ""
 		var opponentId = ""
 
@@ -151,6 +192,7 @@ class WinnerIsCommand extends Commando.Command{
 		if(matchData.player1Id == participantId) opponentId = matchData.player2Id
 		else opponentId = matchData.player1Id
 
+		//Should not be the case! 
 		if(opponentId == null){
 			msgToBuild += "L'adversaire de votre match (round " + matchData.round + ") est encore inconnu."
 		} else {
