@@ -12,24 +12,36 @@ class WinnerIsCommand extends Commando.Command{
         name: 'winner-is',
         group: 'challonge',
         memberName: 'winner-is',
-        description: 'Allows to register a match result for a tournament by specifying its code (code is precised in the tournament page) and winner name',
-        examples: ["Example: tr-winner-is BrawlhallaTourney01 Brian"],
+        description: 'Allows to register a match result for a tournament by specifying its code (code is precised in the tournament page) and winner name (you can mention winner, if its challonge pseudo id is not the same, you can add it in command',
+        examples: ["Example: tr-winner-is BrawlhallaTourney01 @Brian#2789, tr-winner-is SRTest @User#XXXX ChallongeTournamentPseudo"],
         args : [{
             key: 'text',
             prompt: 'Precise the tournament code you would like to see your future match',
             type: 'string'
         }, {
-            key: 'winnername',
-            prompt: 'Precise the match winner name or one of the winners names',
-            type: 'string'
+            key: 'winner',
+            prompt: 'Mention match winner',
+            type: 'member', 
+        }, {
+            key: 'tournamentpseudo',
+            prompt: 'If match winner does not have the same tournament pseudo than his Discord pseudo, override it by this',
+            type: 'string',
+            default : '' 
         }]
 
     	});
     
 	}
 
-	async run(message, {text, winnername}){
+	async run(message, {text, winner, tournamentpseudo}){
 		
+		var winnername = ''
+		if(tournamentpseudo != ''){
+			winnername = tournamentpseudo
+		} else {
+			winnername = winner.displayName
+		}
+
 		var participantId = ""
 		var winnerId = ""
 		var participantIds = [];
@@ -60,7 +72,6 @@ class WinnerIsCommand extends Commando.Command{
 						console.log("winnername" + winnername)
 						if(data[i + ""] && nameValue == winnername){
 							winnerId=data[i + ""].participant.id
-							
 						}
 
 					}
@@ -144,7 +155,7 @@ class WinnerIsCommand extends Commando.Command{
 
 		});
 		
-
+	
 		
 	}
 

@@ -1,6 +1,5 @@
 const Commando = require('discord.js-commando');
 const challonge = require('challonge')
-const request = require('request');
 
 var sangRoyaleApi = process.env.SR_DOMAIN_NAME + "/api/tournamentContext";
 var token = process.env.DISCORD_BOT_TOKEN;
