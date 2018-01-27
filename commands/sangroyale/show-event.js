@@ -31,26 +31,29 @@ class ShowEventCommand extends Commando.Command{
 				var event=body[0]
 				if(event != undefined){
 
-					var kind=""
-					if(event.tournamentChallongeProperty != null){
-						kind="Tournoi Challonge"
-					} else {
-						kind="Tournoi à gemmes"
-					}
-
 					synthesis += "```"
 					synthesis += "Nom : " + event.name + " / Id : " + event.id  + "\n"
 					synthesis += "Date : "  + event.date + "\n"
-					synthesis += "Type : " + kind + "\n"
-					if(kind === "Tournoi à gemmes"){
-						synthesis += "Nombre gemmes : " + event.tournamentGemProperty.gemnumber + "\n"
-						synthesis += "Mot de passe : " + event.tournamentGemProperty.password + "\n"
-					}
+					synthesis += "Type : " + event.kind + "\n"
 					synthesis += "Capacité : " + event.capacity + "\n"
 					synthesis += "Organisateur : " + event.organizer + "\n"
 					synthesis += "Visibilité : " + event.privacy + "\n"
 					if(event.description != "") synthesis += "Description : " + event.description + "\n"
-						synthesis += "```"
+					switch(event.kind){
+						case "Gem Tournament":
+							synthesis += "Nombre gemmes : " + event.properties.gemnumber + "\n"
+							synthesis += "Mot de passe : " + event.properties.password + "\n"
+						break;
+						case "Bracket Tournament":
+							//TODO
+							break;
+						default:
+							break;
+					}
+
+
+
+					synthesis += "```"
 
 					message.channel.sendMessage(synthesis)
 
@@ -63,6 +66,9 @@ class ShowEventCommand extends Commando.Command{
 				message.channel.sendMessage("Erreur inconnue : encore la faute à Skyice")
 			});
 	}
+
+
+	
 
 
 }

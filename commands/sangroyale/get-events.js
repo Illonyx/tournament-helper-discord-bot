@@ -23,13 +23,7 @@ class ShowEventsCommand extends Commando.Command{
 				var synthesis = "Tous les évenements prévus dans Sang Royale :" + "\n"
 				body=JSON.parse(body)
 				body = body.map(function(event){
-					var kind=""
-					if(event.tournamentChallongeProperty != null){
-						kind="Tournoi Challonge"
-					} else {
-						kind="Tournoi à gemmes"
-					}
-					return {"id" : event.id, "name" : event.name, "date" : event.date, "kind" : kind}
+					return {"id" : event.id, "name" : event.name, "date" : event.date, "kind" : event.kind}
 				})
 				body.sort(function(a,b){
 					var d1 = new Date(a.date)
