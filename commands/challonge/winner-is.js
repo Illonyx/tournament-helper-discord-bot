@@ -1,8 +1,6 @@
 const Commando = require('discord.js-commando');
-const challonge = require('challonge')
-const client = challonge.createClient({
-  apiKey: process.env.CHALLONGE_USER_TOKEN
-});
+const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class WinnerIsCommand extends Commando.Command{
 
@@ -45,6 +43,8 @@ class WinnerIsCommand extends Commando.Command{
 		var participantId = ""
 		var winnerId = ""
 		var participantIds = [];
+		var participantMatch = {};
+		var that = this
 
 		var authorName;
 		//Know where message comes from
@@ -55,130 +55,74 @@ class WinnerIsCommand extends Commando.Command{
 		}
 		console.log("ss" + authorName)
 
-		client.participants.index({
-			id:text,
-			callback: (err,data) => {
-				
-				if (data["0"]) {
-					
-					for(var i=0;i<Object.keys(data).length;i++){
+		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
+		getParticipantsTask.then(function(result){
 
-						var nameValue = (data[i + ""].participant.name != "") ? data[i + ""].participant.name : data[i + ""].participant.challongeUsername
-						participantIds[data[i + ""].participant.id] = nameValue
-						if(data[i + ""] && nameValue == authorName){
-							participantId=data[i + ""].participant.id
-							
-						}
-						console.log("winnername" + winnername)
-						if(data[i + ""] && nameValue == winnername){
-							winnerId=data[i + ""].participant.id
-						}
-
-					}
-
-					console.log("e" + winnerId)
-
-					if(participantId == "" || winnerId == ""){
-						message.reply("Impossible de trouver le vainqueur déclaré pour votre match : faute de frappe? ")
-						return;
-					}
-
-					if(participantId != ""){
-						//Find match to show
-						client.matches.index({
-							id: text,
-							callback: (err, data) => {
-								console.log(err,data)
-								if(data["0"]){
-									
-									for(var i=0;i<Object.keys(data).length;i++){
-										if(data[i + ""] && (data[i + ""].match.state == 'open' || data[i + ""].match.state == 'pending') && (data[i + ""].match.player1Id == participantId || data[i + ""].match.player2Id == participantId)){
-											
-											var matchData = data[i + ""].match
-											if(!this.isLastRoundOver(data, matchData.round)){
-												message.reply("Les matchs du round d'avant ne sont pas encore terminés. Veuillez attendre la fin des matchs d'avant pour commencer votre match/déclarer votre résultat")
-												return; 
-											}
-											client.matches.update({
-												id: text,
-												  matchId: matchData.id,
-												  match: {
-												  	scoresCsv: '0-0',
-												  	winnerId: winnerId
-												  },
-												callback: (err, data) => {
-													//console.log(err, data);
-													var msg = this.whoIsTheWinner(participantId, winnerId, matchData, participantIds)
-													message.reply(msg)
-
-												}
-											});
-											
-											
-
-
-
-
-											return;
-										}
-									}
-									message.reply("Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D")
-
-								} else {
-									message.reply("Les matchs du tournoi " + text + " n'ont pas encore été tirés au sort")
-								}
-
-
-
-
-
-							}
-						});
-
-
-
-
-
-					} else {
-						message.channel.sendMessage("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas effectuer cette action")
-						return;
-					}
-
-					
-
-
-				} else {
-					message.channel.sendMessage("Le code du tournoi a-t-il bien été saisi?")
-				}
-
+			//Chercher si le participant est inscrit - si la personne s'est inscrite directement sur le tournoi, on essaie de matcher
+			var foundParticipant = result.find(function(participant){
+				return (participant.name == authorName) || (participant.specific_username == authorName)
+			})
+			if(!foundParticipant){
+				throw "Soit vous n'êtes pas inscrit au tournoi " + text + ", et vous ne pouvez pas effectuer cette action. Soit votre pseudo dans le tournoi differe de celui sur Discord, il faudra mettre les memes dans ce cas. "
 			}
 
-		});
-		
-	
-		
+			//Chercher si le nom du winner correspond à quelque chose
+			var foundWinner = result.find(function(participant){
+				return (participant.name == winnername) || (participant.specific_username == winnername)
+			})
+			if(!foundWinner){
+				throw "Impossible de trouver le vainqueur déclaré pour votre match : faute de frappe? "
+			}
+			
+			winnerId=foundWinner.id
+			participantId=foundParticipant.id
+			participantIds=result.reduce(function(prev, curr){
+				prev[curr.id]=curr.name
+				return prev
+			}, {});
+
+			//Rechercher les prochains matchs qui auront lieu
+			return tournamentSystem.getTournamentMatches(text)
+			
+		}).then(function(matches){
+			var found = matches.find(function(match){
+				return (match.state == 'open' || match.state == 'pending') && (match.player1Id == participantId || match.player2Id == participantId)
+			})
+			if(!found){
+				throw "Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D"
+			}
+			participantMatch=found
+			//lastroundover à gérer
+			var isLastRoundOver = that.isLastRoundOver(matches, found.round)
+			if(!isLastRoundOver){
+				throw "Les matchs du round d'avant ne sont pas encore terminés. Veuillez attendre la fin des matchs d'avant pour commencer votre match/déclarer votre résultat"
+			}
+			return tournamentSystem.declareMatchWinner(text, found.id, winnerId)
+		}).then(function(result){
+			var confirmationMessage = that.whoIsTheWinner(participantId, winnerId, participantMatch, participantIds)
+			message.reply(confirmationMessage)
+		})
+		.catch(function(errorReason){
+			message.reply(errorReason)	
+		})		
 	}
 
-	isLastRoundOver(data, currentRound){
+	isLastRoundOver(matches, currentRound){
 
 		//These are the first rounds, no need to wait
 		if(currentRound == 1) return true;
 
-		var matchByRound = {}
-		
-		for(var i=0;i<Object.keys(data).length;i++){
-			if(data[i + ""]){
-				var matchData = data[i + ""].match
-				if(!matchByRound[matchData.round]){
-					matchByRound[matchData.round] = []
-				}
-				matchByRound[matchData.round].push(matchData)
 
+		var matchesByRound = matches.reduce(function(prev, curr){
+			if(!prev["" + curr.round]){
+				prev["" + curr.round]=[]
 			}
-		}
+			prev[""+curr.round].push(curr)
+			return prev
+		}, {})
 		
 		var lastRound = currentRound - 1
-		var allRoundMatches = matchByRound[lastRound + ""]
+		var allRoundMatches = matchesByRound[lastRound + ""]
 		
 		for(var j=0; j < allRoundMatches.length; j++){
 			var match = allRoundMatches[j]
@@ -188,10 +132,6 @@ class WinnerIsCommand extends Commando.Command{
 		}
 
 		return true
-		
-
-
-
 	}
 
 	whoIsTheWinner(participantId, winnerId, matchData, participantsData){

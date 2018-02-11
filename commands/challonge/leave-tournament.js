@@ -1,8 +1,6 @@
 const Commando = require('discord.js-commando');
-const challonge = require('challonge')
-const client = challonge.createClient({
-  apiKey: process.env.CHALLONGE_USER_TOKEN
-});
+const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class LeaveTournamentCommand extends Commando.Command{
 
@@ -26,7 +24,6 @@ class LeaveTournamentCommand extends Commando.Command{
 
 	async run(message, args){
 		const {text} = args
-		var participantId = ""
 
 		var authorName;
 		//Know where message comes from
@@ -37,46 +34,25 @@ class LeaveTournamentCommand extends Commando.Command{
 		}
 		console.log("ss" + authorName)
 
-		client.participants.index({
-			id:text,
-			callback: (err,data) => {
-				console.log(err,data)
-				if (data["0"]) {
-					
-					for(var i=0;i<Object.keys(data).length;i++){
-						if(data[i + ""] && data[i + ""].participant.name == authorName){
-							participantId=data[i + ""].participant.id
-						}
-					}
-
-					if(participantId != ""){
-						client.participants.destroy({
-							id: text,
-							participantId: participantId,
-							callback: (err, data) => {
-								console.log(err,data)
-								if(data){
-									message.reply("Votre désinscription au tournoi " + text + " a bien été prise en compte")
-								}
-							}
-						});
-					} else {
-						message.reply("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas vous en désinscire :-) ")
-						return;
-					}
-
-					
-
-
-				} else {
-					message.reply("Le code du tournoi a-t-il bien été saisi?")
-				}
-
+		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
+		getParticipantsTask.then(function(result){
+			
+			//Chercher si le participant est bien inscrit
+			var found = result.find(function(participant){
+				return participant.name == authorName
+			})
+			if(!found){
+				throw "Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas vous en désinscrire :-) ";
 			}
 
-		});
-
-		
+			//Si le participant est bien inscrit, on peut procéder à sa désinscription
+			return tournamentSystem.unregisterTournamentParticipant(text, found.id)
+		}).then(function(etatValidation){
+			message.reply(etatValidation)
+		})
+		.catch(function(errorReason){
+			message.reply(errorReason)	
+		})
 	}
 
 

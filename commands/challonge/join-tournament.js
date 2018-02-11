@@ -1,8 +1,6 @@
 const Commando = require('discord.js-commando');
-const challonge = require('challonge')
-const client = challonge.createClient({
-  apiKey: process.env.CHALLONGE_USER_TOKEN
-});
+const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class JoinTournamentCommand extends Commando.Command {
 
@@ -34,54 +32,28 @@ class JoinTournamentCommand extends Commando.Command {
 		} else {
 			authorName=message.author.username
 		}
-		console.log("ss" + authorName)
+		console.log("ss" + authorName + "dd" + text)
 
-		client.participants.index({
-			id:text,
-			callback: (err,data) => {
-				//console.log(err,data)
-				if (err == null) {
-					
-					if(data["0"]){
-						//Checker s'il y a des inscrits
-						for(var i=0;i<Object.keys(data).length;i++){
-							if(data[i + ""] && data[i + ""].participant.name == authorName){
-								message.reply("Vous êtes déjà inscrit au tournoi demandé")
-								return;
-							}
-						}
-					}	
+		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
+		getParticipantsTask.then(function(result){
 
-					//Tester le create avec un nom déjà existant?
-					client.participants.create({
-						id: text,
-						participant: {
-							name: encodeURI("" + authorName)
-						},
-						callback: (err, data) => {
-							console.log(err,data)
-							if(err) {
-								message.reply("Erreur lors de l'inscription : le tournoi a déjà commencé")
-							} else {
-								if(data.participant.onWaitingList){
-									message.reply("Le tournoi est complet : vous avez été placé sur liste d'attente")
-								} else {
-									message.reply("Votre inscription au tournoi" + text + " a bien été prise en compte")
-								}
-							}
-						}
-					});
-
-
-				} else {
-					message.reply("Le code du tournoi a-t-il bien été saisi?")
-				}
-
+			//Chercher si le participant est inscrit
+			var found = result.find(function(participant){
+				return participant.name == authorName
+			})
+			if(found){
+				throw "Vous êtes déjà inscrit au tournoi demandé"
 			}
+			
+			//Si le participant n'a pas été trouvé, on procède à l'inscription
+			return tournamentSystem.registerTournamentParticipant(text, authorName)
+		}).then(function(etatValidation){
+			message.reply(etatValidation)
+		})
+		.catch(function(errorReason){
+			message.reply(errorReason)	
+		})
 
-		});
-
-		
 	}
 
 

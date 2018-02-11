@@ -1,8 +1,6 @@
 const Commando = require('discord.js-commando');
-const challonge = require('challonge')
-const client = challonge.createClient({
-  apiKey: process.env.CHALLONGE_USER_TOKEN
-});
+const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class NextMatchTournamentCommand extends Commando.Command{
 
@@ -30,6 +28,7 @@ class NextMatchTournamentCommand extends Commando.Command{
 		const {text} = args
 		var participantId = ""
 		var participantIds = [];
+		var that = this
 
 		var authorName;
 		//Know where message comes from
@@ -40,73 +39,40 @@ class NextMatchTournamentCommand extends Commando.Command{
 		}
 		console.log("ss" + authorName)
 
-		client.participants.index({
-			id:text,
-			callback: (err,data) => {
-				
-				if (data["0"]) {
-					
-					for(var i=0;i<Object.keys(data).length;i++){
 
-						var nameValue = (data[i + ""].participant.name != "") ? data[i + ""].participant.name : data[i + ""].participant.challongeUsername
-						participantIds[data[i + ""].participant.id] = nameValue
-						if(data[i + ""] && nameValue == authorName){
-							participantId=data[i + ""].participant.id
-							
-						}
+		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
+		getParticipantsTask.then(function(result){
 
-					}
-
-					console.log("e" + participantId)
-					if(participantId != ""){
-						//Find match to show
-						client.matches.index({
-							id: text,
-							callback: (err, data) => {
-								console.log(err,data)
-								if(data["0"]){
-									
-									for(var i=0;i<Object.keys(data).length;i++){
-										if(data[i + ""] && (data[i + ""].match.state == 'open' || data[i + ""].match.state == 'pending') && (data[i + ""].match.player1Id == participantId || data[i + ""].match.player2Id == participantId)){
-											var summary = this.buildMatchSummary(participantId, data[i + ""].match, participantIds)
-											message.channel.sendMessage(summary)
-											return;
-										}
-									}
-									message.reply("Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D")
-
-								} else {
-									message.reply("Les matchs du tournoi " + text + " n'ont pas encore été tirés au sort")
-								}
-
-
-
-
-
-							}
-						});
-
-
-
-
-
-					} else {
-						message.reply("Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas effectuer cette action")
-						return;
-					}
-
-					
-
-
-				} else {
-					message.reply("Le code du tournoi a-t-il bien été saisi?")
-				}
-
+			//Chercher si le participant est inscrit - si la personne s'est inscrite directement sur le tournoi, on essaie de matcher
+			var found = result.find(function(participant){
+				return (participant.name == authorName) || (participant.specific_username == authorName)
+			})
+			if(!found){
+				throw "Soit vous n'êtes pas inscrit au tournoi " + text + ", et vous ne pouvez pas effectuer cette action. Soit votre pseudo dans le tournoi differe de celui sur Discord, il faudra mettre les memes dans ce cas. "
 			}
+			
+			participantId=found.id
+			participantIds=result.reduce(function(prev, curr){
+				prev[curr.id]=curr.name
+				return prev
+			}, {});
 
-		});
-		
-
+			//Rechercher les prochains matchs qui auront lieu
+			return tournamentSystem.getTournamentMatches(text)
+			
+		}).then(function(matches){
+			var found = matches.find(function(match){
+				return (match.state == 'open' || match.state == 'pending') && (match.player1Id == participantId || match.player2Id == participantId)
+			})
+			if(!found){
+				throw "Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D"
+			}
+			var nextMatchSummary = that.buildMatchSummary(participantId, found, participantIds)
+			message.reply(nextMatchSummary)
+		})
+		.catch(function(errorReason){
+			message.reply(errorReason)	
+		})
 		
 	}
 
