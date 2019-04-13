@@ -1,14 +1,14 @@
 const Commando = require('discord.js-commando');
-const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
 
-class NextMatchTournamentCommand extends Commando.Command{
+class NextMatchTournamentCommand extends Commando.Command {
 
 	constructor(client) {
 
     super(client, {
         name: 'next-match',
-        group: 'challonge',
+        group: 'tournament',
         memberName: 'next-match',
         description: 'Shows the next match a challonge tournament partcipant will do by specifying its code (code is precised in the tournament page)',
         examples: ["Example: tr-next-match BrawlhallaTourney01"],

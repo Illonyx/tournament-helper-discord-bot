@@ -1,5 +1,5 @@
 const Commando = require('discord.js-commando');
-const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class JoinTournamentCommand extends Commando.Command {
@@ -8,7 +8,7 @@ class JoinTournamentCommand extends Commando.Command {
 
     super(client, {
         name: 'join',
-        group: 'challonge',
+        group: 'tournament',
         memberName: 'join',
         description: 'Join a challonge tournament by specifying its code (code is precised in the tournament',
         examples: ["Example: !join BrawlhallaTourney01"],

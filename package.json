@@ -1,7 +1,7 @@
 {
-  "name": "challonge_bot",
+  "name": "tournament_bot",
   "version": "0.0.1",
-  "description": "A discord bot to help manage challonge tournaments",
+  "description": "A discord bot dedicated to help to tournaments management",
   "main": "index.js",
   "scripts": {
     "start": "node . --harmony",
@@ -13,16 +13,12 @@
   "author": "Skyice",
   "license": "ISC",
   "dependencies": {
-    "ajax-request": "^1.2.3",
     "challonge": "^2.1.0",
-    "cron-job-manager": "^1.0.7",
     "discord.js": "^11.2.1",
     "discord.js-commando": "^0.9.0",
-    "moment": "^2.18.1",
-    "moment-timezone": "^0.5.14",
     "opusscript": "0.0.3",
-    "request": "^2.81.0",
-    "sqlite": "^2.8.0",
+    "request": "^2.88.0",
+    "sqlite": "3.0.3",
     "time": "^0.12.0",
     "uws": "^8.14.1"
   }

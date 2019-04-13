@@ -1,14 +1,14 @@
 const Commando = require('discord.js-commando');
-const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
 
-class WinnerIsCommand extends Commando.Command{
+class WinnerIsCommand extends Commando.Command {
 
 	constructor(client) {
 
     super(client, {
         name: 'winner-is',
-        group: 'challonge',
+        group: 'tournament',
         memberName: 'winner-is',
         description: 'Allows to register a match result for a tournament by specifying its code (code is precised in the tournament page) and winner name (you can mention winner, if its challonge pseudo id is not the same, you can add it in command',
         examples: ["Example: tr-winner-is BrawlhallaTourney01 @Brian#2789, tr-winner-is SRTest @User#XXXX ChallongeTournamentPseudo"],

@@ -1,14 +1,14 @@
 const Commando = require('discord.js-commando');
-const TournamentSystemAccess = require('../../utils/tournament-system/tournament-system-access')
+const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
 
-class LeaveTournamentCommand extends Commando.Command{
+class LeaveTournamentCommand extends Commando.Command {
 
 	constructor(client) {
 
     super(client, {
         name: 'leave',
-        group: 'challonge',
+        group: 'tournament',
         memberName: 'leave',
         description: 'Leave a challonge tournament by specifying its code (code is precised in the tournament page)',
         examples: ["Example: tr-leave BrawlhallaTourney01"],
