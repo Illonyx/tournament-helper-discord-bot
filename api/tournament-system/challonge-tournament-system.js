@@ -7,7 +7,6 @@ const client = challonge.createClient({
 //Faut bien convertir ce format tout pourri avant de faire autre chose :D
 var convert = function(challongeJson, objectKey){
   var array = []
-  console.log("aa" + Object.keys(challongeJson).length)
   for(var i=0;i<Object.keys(challongeJson).length;i++){
     var tournamentJson = challongeJson["" + i][objectKey]
     if(tournamentJson)
@@ -65,15 +64,27 @@ class ChallongeTournamentSystem extends TournamentSystem {
 
 	registerTournamentParticipant(tournamentCode, participantName){
 		return new Promise(function(resolve, reject){
+			console.log("Entrée dans la méthode registerTournamentParticipant")
 			client.participants.create({
 				id:tournamentCode,
 				participant: {
 		 			name: encodeURI("" + participantName)
 		 		},
 				callback: (err, data) => {
-					//console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
-					if(err){
-						var reason = "Erreur lors de l'inscription : le tournoi est complet :("
+					console.log("err : " + JSON.stringify(err))
+					
+					if(err) {
+						
+						var reason = "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
+						switch (err.statusCode) {
+							case 401:
+								reason = "Vous ne pouvez pas rejoindre ce tournoi car il n'est pas organisé par l'administrateur de votre Discord"
+								break;
+							case 422:
+								reason = "Il n'est plus possible de s'inscrire au tournoi. Le tournoi doit être commencé ou fini. "
+								break;
+						}
+
 						return reject(reason)
 					} else {
 						console.log(data)
