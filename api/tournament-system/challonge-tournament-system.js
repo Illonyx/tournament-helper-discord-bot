@@ -4,6 +4,7 @@ const client = challonge.createClient({
   apiKey: process.env.CHALLONGE_USER_TOKEN
 });
 
+
 //Faut bien convertir ce format tout pourri avant de faire autre chose :D
 var convert = function(challongeJson, objectKey){
   var array = []
@@ -18,7 +19,7 @@ var convert = function(challongeJson, objectKey){
 
 class ChallongeTournamentSystem extends TournamentSystem {
 	
-	constructor(){
+	constructor() {
 		super('challonge')
 	}
 
@@ -28,7 +29,9 @@ class ChallongeTournamentSystem extends TournamentSystem {
 
 
 	getTournamentParticipants(tournamentCode){
+		var that = this;
 		return new Promise(function(resolve, reject){
+			
 			client.participants.index({
 				id:tournamentCode,
 				callback: (err, data) => {
@@ -53,7 +56,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 				    	return resolve(arrayM)
 			    	} else {
 			    		console.log('getTrParticipants - Error')
-						var reason = "Le code du tournoi a t il été bien saisi?"
+						var reason = that.languageManager.getI18NString("tournament-system-tournament-not-found-error")
 						return reject(reason)
 					}
 				}
@@ -63,36 +66,45 @@ class ChallongeTournamentSystem extends TournamentSystem {
 	}
 
 	registerTournamentParticipant(tournamentCode, participantName){
+		var that = this
 		return new Promise(function(resolve, reject){
+			
 			console.log("Entrée dans la méthode registerTournamentParticipant")
+			let reason = ""
+
 			client.participants.create({
 				id:tournamentCode,
 				participant: {
 		 			name: encodeURI("" + participantName)
 		 		},
 				callback: (err, data) => {
-					console.log("err : " + JSON.stringify(err))
+					console.error("registerTournamentParticipant - Erreur rencontrée lors de l'inscription" + JSON.stringify(err))
 					
 					if(err) {
 						
-						var reason = "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
 						switch (err.statusCode) {
 							case 401:
-								reason = "Vous ne pouvez pas rejoindre ce tournoi car il n'est pas organisé par l'administrateur de votre Discord"
+								reason += that.languageManager.getI18NString("tournament-system-unauthorized-access")
 								break;
 							case 422:
-								reason = "Il n'est plus possible de s'inscrire au tournoi. Le tournoi doit être commencé ou fini. "
+								reason += that.languageManager.getI18NString("tournament-system-registration-closed")
+								break;
+							default:
+								reason += "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
 								break;
 						}
-
 						return reject(reason)
+
 					} else {
-						console.log(data)
+						
+						console.log("registerTournamentParticipant - Succès lors de l inscription")
+
 						if(data.participant.onWaitingList){
-		 					return resolve("Le tournoi est complet : vous avez été placé sur liste d'attente")
+							reason += that.languageManager.getI18NString("tournament-system-join-success-waiting-list")
 		 				} else {
-							return resolve("Votre inscription au tournoi" + tournamentCode + " a bien été prise en compte")
-						}
+		 					reason += that.languageManager.getI18NString("tournament-system-join-success")
+		 				}
+						return resolve(reason)
 					}
 
 				}
@@ -102,18 +114,34 @@ class ChallongeTournamentSystem extends TournamentSystem {
 	}
 
 	unregisterTournamentParticipant(tournamentCode, participantId){
-		console.log("on est là?")
+		var that = this;
+		console.log("Entrée dans la fonction unregisterTournamentParticipant params : " + tournamentCode + "," + participantId)
+
 		return new Promise(function(resolve, reject){
 			client.participants.destroy({
 				id:tournamentCode,
 				participantId: participantId,
 				callback: (err, data) => {
-					//console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
-					if(err){
-						var reason = "Désinscription impossible? Voir avec l'admin du tournoi"
+					if(err) {
+						console.error("unregisterTournamentParticipant - Erreur rencontrée lors de l'inscription" + JSON.stringify(err))
+						var reason = that.languageManager.getI18NString("tournament-system-leave-error")
 						return reject(reason)
 					} else {
-						return resolve("Votre désinscription au tournoi " + tournamentCode + " a bien été prise en compte")
+						console.log("Received data" + JSON.stringify(data))
+						let reason = ""
+							if (data.participant == null){
+								reason = that.languageManager.getI18NString("tournament-system-leave-error")
+						} else {
+							if(data.participant.active == false || data.participant.reactivable == true){
+							reason = that.languageManager.getI18NString("tournament-system-participant-disactivated")
+						} else {
+							//Le tournoi n'était pas commencé, le participant est directement disparu du tournoi
+							reason = that.languageManager.getI18NString("tournament-system-leave-success")
+						}
+						}
+						
+						
+						return resolve(reason)
 					}
 
 				}
@@ -190,17 +218,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 		})
 	}
 
-
-
-
-
-
-
 	//Submit score
-
-
-
-
 
 }
 

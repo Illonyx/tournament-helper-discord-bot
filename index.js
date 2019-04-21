@@ -22,6 +22,7 @@ client.registry
 
 
 client.login(token);
+console.log("Tournament Bot is ready")
 
 
 

@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
+const LanguageManager = require('../../api/user-settings/language-manager')
 
 class LeaveTournamentCommand extends Commando.Command {
 
@@ -19,11 +20,16 @@ class LeaveTournamentCommand extends Commando.Command {
         }]
 
     	});
+    	this.languageManager = new LanguageManager();
     
 	}
 
 	async run(message, args){
 		const {text} = args
+		var that = this;
+
+		let prefix = that.languageManager.getI18NString("tournament-leave-prefix") + text
+								+ " : "
 
 		var authorName;
 		//Know where message comes from
@@ -42,16 +48,16 @@ class LeaveTournamentCommand extends Commando.Command {
 				return participant.name == authorName
 			})
 			if(!found){
-				throw "Vous n'êtes pas inscrit au tournoi " + text + ", vous ne pouvez pas vous en désinscrire :-) ";
+				throw that.languageManager.getI18NString("leave-command-already-left");
 			}
 
 			//Si le participant est bien inscrit, on peut procéder à sa désinscription
 			return tournamentSystem.unregisterTournamentParticipant(text, found.id)
 		}).then(function(etatValidation){
-			message.reply(etatValidation)
+			message.reply(prefix + etatValidation)
 		})
 		.catch(function(errorReason){
-			message.reply(errorReason)	
+			message.reply(prefix + errorReason)	
 		})
 	}
 

@@ -1,0 +1,297 @@
+{
+	"languages": [{
+			"key": "fr",
+			"name": "Français"
+		},
+		{
+			"key": "en",
+			"name": "English"
+		},
+		{
+			"key": "es",
+			"name": "Español"
+		}
+	],
+	"dictionary": [{
+			"key": "tournament-system-tournament-not-found-error",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Le tournoi n'a pas été trouvé : le code du tournoi a-t-il été bien saisi?"
+			}
+		}, {
+			"key": "tournament-join-prefix",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "Résultats de l'inscription au tournoi "
+			}
+		}, {
+			"key": "tournament-system-unauthorized-access",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "vous ne pouvez pas rejoindre ce tournoi car il n'est pas organisé par l'administrateur de votre Discord"
+			}
+		}, {
+			"key": "tournament-system-registration-closed",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "il n'est plus possible de s'inscrire au tournoi. Le tournoi doit être commencé ou fini."
+			}
+		}, {
+			"key": "tournament-system-join-error",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "Erreur lors de l'inscription : "
+			}
+		}, {
+			"key": "tournament-system-join-error-reason1",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "le tournoi est complet et ne possède pas de file d'attente."
+			}
+		}, {
+			"key": "tournament-system-join-success",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "votre inscription au tournoi a bien été prise en compte"
+			}
+		}, {
+			"key": "tournament-system-join-success-waiting-list",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "le tournoi est complet : vous avez été placé en file d'attente"
+			}
+		}, {
+			"key": "tournament-leave-prefix",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "Résultats de la désinscription au tournoi "
+			}
+		}, {
+			"key": "tournament-system-leave-error",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Erreur inconnue lors de la désinscription au tournoi. Vous ne pouvez vous désinscrire qu'aux tournois de l'organisateur de ce Discord"
+			}
+		}, {
+			"key": "tournament-system-participant-disactivated",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "vous avez déclaré forfait avec succès pour les prochains matchs du tournoi (votre participation est désactivée). Si vous voulez reprendre le tournoi, contactez l'admin du tournoi."
+			}
+		}, {
+			"key": "tournament-system-leave-success",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "votre désinscription au tournoi a bien été prise en compte"
+			}
+		}, {
+			"key": "tournament-system-next-match-error",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Le tirage au sort n'a pas encore été effectué. Votre prochain match est donc encore inconnu."
+			}
+		}, {
+			"key": "tournament-system-winner-is-error",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Il y a eu une erreur lors de la déclaration du vainqueur. Voir avec l'admin"
+			}
+		}, {
+			"key": "join-command-description",
+			"languages": {
+				"en": "Join a tournament by specifying its code (code is given in the tournament description)",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "join-command-trcode-missing-arg",
+			"languages": {
+				"en": "Add tournament's code you would like to join",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "join-command-already-registered",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "vous êtes déjà inscrit au tournoi demandé"
+			}
+		}, {
+			"key": "leave-command-description",
+			"languages": {
+				"en": "Leave a tournament by specifying its code (code is given in the tournament page)",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "leave-command-trcode-missing-arg",
+			"languages": {
+				"en": "Precise the tournament code you would like to leave",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "leave-command-already-left",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "vous n'êtes pas inscrit à ce tournoi, vous ne pouvez donc pas vous en désinscrire :-) "
+			}
+		}, {
+			"key": "next-match-command-description",
+			"languages": {
+				"en": "Shows the next match a challonge tournament partcipant will do by specifying its code (code is given in the tournament page)",
+				"es": "",
+				"fr": " "
+			}
+		}, {
+			"key": "next-match-trcode-missing-arg",
+			"languages": {
+				"en": "Add the tournament code you would like to see your future match",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "next-match-player-not-found-error1",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Soit vous n'êtes pas inscrit au tournoi "
+			}
+		}, {
+			"key": "next-match-player-not-found-error2",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": ", et vous ne pouvez pas effectuer cette action. Soit votre pseudo dans le tournoi diffère de celui sur Discord, il faudra mettre les memes dans ce cas."
+			}
+		}, {
+			"key": "next-match-match-not-found-error",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D"
+			}
+		}, {
+			"key": "next-match-summary-unknown-opponent1",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "L'adversaire de votre match (round "
+			}
+		}, {
+			"key": "next-match-summary-unknown-opponent2",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": ") est encore inconnu."
+			}
+		}, {
+			"key": "next-match-summary-opponent1",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Votre prochain match (round "
+			}
+		}, {
+			"key": "next-match-summary-opponent2",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": ") vous opposera à : "
+			}
+		}, {
+			"key": "next-match-datetime-not-scheduled",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "L'heure n'a pas encore été définie, ou regarder le reglement du tournoi associé."
+			}
+		}, {
+			"key": "next-match-datetime-scheduled",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Le match sera prévu à ce moment, bonne chance : "
+			}
+		}, {
+			"key": "winner-is-description",
+			"languages": {
+				"en": "Allows to register a match result for a tournament by specifying its code (code is precised in the tournament page) and winner name (you can mention winner, if its challonge pseudo id is not the same, you can add it in command",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "winner-is-trcode-missing-arg",
+			"languages": {
+				"en": "Add the tournament code you would like to see your future match",
+				"es": "",
+				"fr": ""
+			}
+		}, {
+			"key": "winner-is-match-winner-missing-arg",
+			"languages": {
+				"en": "",
+				"es": "Mention match winner",
+				"fr": ""
+			}
+		}, {
+			"key": "winner-is-winner-not-found",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "Impossible de trouver le vainqueur déclaré pour votre match : faute de frappe? "
+			}
+		}, {
+			"key": "winner-is-round-not-finished",
+			"languages": {
+				"en": "blabla",
+				"es": "daa",
+				"fr": "Les matchs du round d'avant ne sont pas encore terminés. Veuillez attendre la fin des matchs d'avant pour commencer votre match/déclarer votre résultat"
+			}
+		}, {
+			"key": "winner-is-summary1",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": "A l'issue du match (round "
+			}
+		}, {
+			"key": "winner-is-summary2",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": ") contre "
+			}
+		}, {
+			"key": "winner-is-summary3",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": ", le joueur "
+			}
+		}, {
+			"key": "winner-is-summary4",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": " a été déclaré vainqueur"
+			}
+		}
+	]
+}

@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
+const LanguageManager = require('../../api/user-settings/language-manager')
 
 class JoinTournamentCommand extends Commando.Command {
 
@@ -11,7 +12,7 @@ class JoinTournamentCommand extends Commando.Command {
         group: 'tournament',
         memberName: 'join',
         description: 'Join a challonge tournament by specifying its code (code is precised in the tournament',
-        examples: ["Example: !join BrawlhallaTourney01"],
+        examples: ["Example: tr-join TournamentExample1"],
         args : [{
             key: 'text',
             prompt: 'Precise the tournament code you would like to join',
@@ -19,11 +20,15 @@ class JoinTournamentCommand extends Commando.Command {
         }]
 
     	});
-    
+    	this.languageManager = new LanguageManager();
+
 	}
 
 	async run(message, args){
 		const {text} = args
+		var that = this;
+		let prefix = that.languageManager.getI18NString("tournament-join-prefix") + text
+								+ " : "
 
 		var authorName;
 		//Know where message comes from
@@ -32,7 +37,6 @@ class JoinTournamentCommand extends Commando.Command {
 		} else {
 			authorName=message.author.username
 		}
-		console.log("ss" + authorName + "dd" + text)
 
 		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
 		getParticipantsTask.then(function(result){
@@ -42,16 +46,16 @@ class JoinTournamentCommand extends Commando.Command {
 				return participant.name == authorName
 			})
 			if(found){
-				throw "Vous êtes déjà inscrit au tournoi demandé"
+				throw that.languageManager.getI18NString("join-command-already-registered")
 			}
 			
 			//Si le participant n'a pas été trouvé, on procède à l'inscription
 			return tournamentSystem.registerTournamentParticipant(text, authorName)
 		}).then(function(etatValidation){
-			message.reply(etatValidation)
+			message.reply(prefix + etatValidation)
 		})
 		.catch(function(errorReason){
-			message.reply(errorReason)	
+			message.reply(prefix + errorReason)	
 		})
 
 	}

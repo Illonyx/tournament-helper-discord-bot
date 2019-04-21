@@ -1,12 +1,15 @@
+const LanguageManager = require('../user-settings/language-manager')
+
 class TournamentSystem {
 
 constructor(clientName){
-	this.clientName=clientName
+	this.clientName = clientName
+	this.languageManager = new LanguageManager()
 }
 
 //Participants
 getTournamentParticipants(tournamentCode){
-	
+
 }
 
 registerTournamentParticipant(tournamentCode, participant){
