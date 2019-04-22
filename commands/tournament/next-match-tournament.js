@@ -43,15 +43,9 @@ class NextMatchTournamentCommand extends Commando.Command {
 		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
 		getParticipantsTask.then(function(result){
 
-			//Chercher si le participant est inscrit - si la personne s'est inscrite directement sur le tournoi, on essaie de matcher
-			var found = result.find(function(participant){
-				return (participant.name == authorName) || (participant.specific_username == authorName)
-			})
-			if(!found){
-				throw "Soit vous n'êtes pas inscrit au tournoi " + text + ", et vous ne pouvez pas effectuer cette action. Soit votre pseudo dans le tournoi differe de celui sur Discord, il faudra mettre les memes dans ce cas. "
-			}
-			
-			participantId=found.id
+			var participantAuthor = tournamentSystem.checkParticipantRegistration(authorName, result)
+			participantId = participantAuthor.id
+
 			participantIds=result.reduce(function(prev, curr){
 				prev[curr.id]=curr.name
 				return prev

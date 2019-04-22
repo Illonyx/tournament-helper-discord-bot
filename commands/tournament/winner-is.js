@@ -4,6 +4,7 @@ const tournamentSystem = new TournamentSystemAccess('challonge')
 
 class WinnerIsCommand extends Commando.Command {
 
+	//Le type member ne peut pas être utilisé dans un message privé au bot
 	constructor(client) {
 
     super(client, {
@@ -59,23 +60,13 @@ class WinnerIsCommand extends Commando.Command {
 		getParticipantsTask.then(function(result){
 
 			//Chercher si le participant est inscrit - si la personne s'est inscrite directement sur le tournoi, on essaie de matcher
-			var foundParticipant = result.find(function(participant){
-				return (participant.name == authorName) || (participant.specific_username == authorName)
-			})
-			if(!foundParticipant){
-				throw "Soit vous n'êtes pas inscrit au tournoi " + text + ", et vous ne pouvez pas effectuer cette action. Soit votre pseudo dans le tournoi differe de celui sur Discord, il faudra mettre les memes dans ce cas. "
-			}
+			var foundParticipant = tournamentSystem.checkParticipantRegistration(authorName, result)
+			participantId=foundParticipant.id
 
 			//Chercher si le nom du winner correspond à quelque chose
-			var foundWinner = result.find(function(participant){
-				return (participant.name == winnername) || (participant.specific_username == winnername)
-			})
-			if(!foundWinner){
-				throw "Impossible de trouver le vainqueur déclaré pour votre match : faute de frappe? "
-			}
-			
+			var foundWinner = tournamentSystem.checkParticipantRegistration(winnername, result)
 			winnerId=foundWinner.id
-			participantId=foundParticipant.id
+			
 			participantIds=result.reduce(function(prev, curr){
 				prev[curr.id]=curr.name
 				return prev

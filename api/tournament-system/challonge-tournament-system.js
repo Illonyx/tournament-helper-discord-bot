@@ -1,18 +1,18 @@
 const challonge = require('challonge')
 const TournamentSystem = require('./tournament-system')
 const client = challonge.createClient({
-  apiKey: process.env.CHALLONGE_USER_TOKEN
+	apiKey: process.env.CHALLONGE_USER_TOKEN
 });
 
 
 //Faut bien convertir ce format tout pourri avant de faire autre chose :D
 var convert = function(challongeJson, objectKey){
-  var array = []
-  for(var i=0;i<Object.keys(challongeJson).length;i++){
-    var tournamentJson = challongeJson["" + i][objectKey]
-    if(tournamentJson)
-      array.push(tournamentJson)
-  }
+	var array = []
+	for(var i=0;i<Object.keys(challongeJson).length;i++){
+		var tournamentJson = challongeJson["" + i][objectKey]
+		if(tournamentJson)
+			array.push(tournamentJson)
+	}
   //console.log('First elem : ' + JSON.stringify(array[0]))
   return array
 }
@@ -44,18 +44,18 @@ class ChallongeTournamentSystem extends TournamentSystem {
 							return resolve([])
 						}
 						var array = convert(data, "participant")
-	    				var arrayM = array.map(function(participant){
-				      		return {
-				        		name : participant.name,
-				        		id : participant.id,
-				        		specific_username: participant.challonge_username,
-				        		rank : participant.final_rank,
-				        		waiting_list : participant.on_waiting_list
-				      		}
-				    	})
-				    	return resolve(arrayM)
-			    	} else {
-			    		console.log('getTrParticipants - Error')
+						var arrayM = array.map(function(participant){
+							return {
+								name : participant.name,
+								id : participant.id,
+								specific_username: participant.challonge_username,
+								rank : participant.final_rank,
+								waiting_list : participant.on_waiting_list
+							}
+						})
+						return resolve(arrayM)
+					} else {
+						console.log('getTrParticipants - Error')
 						var reason = that.languageManager.getI18NString("tournament-system-tournament-not-found-error")
 						return reject(reason)
 					}
@@ -75,8 +75,8 @@ class ChallongeTournamentSystem extends TournamentSystem {
 			client.participants.create({
 				id:tournamentCode,
 				participant: {
-		 			name: encodeURI("" + participantName)
-		 		},
+					name: encodeURI("" + participantName)
+				},
 				callback: (err, data) => {
 					console.error("registerTournamentParticipant - Erreur rencontrée lors de l'inscription" + JSON.stringify(err))
 					
@@ -84,14 +84,14 @@ class ChallongeTournamentSystem extends TournamentSystem {
 						
 						switch (err.statusCode) {
 							case 401:
-								reason += that.languageManager.getI18NString("tournament-system-unauthorized-access")
-								break;
+							reason += that.languageManager.getI18NString("tournament-system-unauthorized-access")
+							break;
 							case 422:
-								reason += that.languageManager.getI18NString("tournament-system-registration-closed")
-								break;
+							reason += that.languageManager.getI18NString("tournament-system-registration-closed")
+							break;
 							default:
-								reason += "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
-								break;
+							reason += "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
+							break;
 						}
 						return reject(reason)
 
@@ -101,9 +101,9 @@ class ChallongeTournamentSystem extends TournamentSystem {
 
 						if(data.participant.onWaitingList){
 							reason += that.languageManager.getI18NString("tournament-system-join-success-waiting-list")
-		 				} else {
-		 					reason += that.languageManager.getI18NString("tournament-system-join-success")
-		 				}
+						} else {
+							reason += that.languageManager.getI18NString("tournament-system-join-success")
+						}
 						return resolve(reason)
 					}
 
@@ -128,20 +128,18 @@ class ChallongeTournamentSystem extends TournamentSystem {
 						return reject(reason)
 					} else {
 						console.log("Received data" + JSON.stringify(data))
-						let reason = ""
-							if (data.participant == null){
-								reason = that.languageManager.getI18NString("tournament-system-leave-error")
-						} else {
+						let reason = that.languageManager.getI18NString("tournament-system-leave-error")
+						if (data.participant != null) 
+						{
 							if(data.participant.active == false || data.participant.reactivable == true){
-							reason = that.languageManager.getI18NString("tournament-system-participant-disactivated")
-						} else {
-							//Le tournoi n'était pas commencé, le participant est directement disparu du tournoi
-							reason = that.languageManager.getI18NString("tournament-system-leave-success")
+								reason = that.languageManager.getI18NString("tournament-system-participant-disactivated")
+							} else {
+								//Le tournoi n'était pas commencé, le participant est directement disparu du tournoi
+								reason = that.languageManager.getI18NString("tournament-system-leave-success")
+							}
+							return resolve(reason)
 						}
-						}
-						
-						
-						return resolve(reason)
+
 					}
 
 				}
@@ -170,20 +168,19 @@ class ChallongeTournamentSystem extends TournamentSystem {
 							return resolve([])
 						}
 						var array = convert(data, "match")
-	    				var arrayM = array.map(function(match){
-				      		return {
-				      			id : match.id,
-				        		round : match.round, 
-				        		state : match.state,
-				        		scheduled_time : match.scheduledTime,
-				        		player1Id : match.player1Id, 
-				        		player2Id : match.player2Id
-
-				      		}
-				    	})
-				    	return resolve(arrayM)
-			    	} else {
-			    		console.log('getTrMatches - Error')
+						var arrayM = array.map(function(match){
+							return {
+								id : match.id,
+								round : match.round, 
+								state : match.state,
+								scheduled_time : match.scheduledTime,
+								player1Id : match.player1Id, 
+								player2Id : match.player2Id
+							}
+						})
+						return resolve(arrayM)
+					} else {
+						console.log('getTrMatches - Error')
 						var reason = "Le tirage au sort n'a pas encore été effectué. Votre prochain match est donc encore inconnu."
 						return reject(reason)
 					}

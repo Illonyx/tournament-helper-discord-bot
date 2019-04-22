@@ -20,6 +20,13 @@
 				"fr": "Le tournoi n'a pas été trouvé : le code du tournoi a-t-il été bien saisi?"
 			}
 		}, {
+			"key": "tournament-system-participant-not-found",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "action non effectuée, impossible de trouver dans la liste des participants du tournoi (est-il bien inscrit?) le joueur suivant : "
+			}
+		}, {
 			"key": "tournament-join-prefix",
 			"languages": {
 				"en": "",

@@ -43,13 +43,7 @@ class LeaveTournamentCommand extends Commando.Command {
 		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
 		getParticipantsTask.then(function(result){
 			
-			//Chercher si le participant est bien inscrit
-			var found = result.find(function(participant){
-				return participant.name == authorName
-			})
-			if(!found){
-				throw that.languageManager.getI18NString("leave-command-already-left");
-			}
+			var found = tournamentSystem.checkParticipantRegistration(authorName, result)
 
 			//Si le participant est bien inscrit, on peut procéder à sa désinscription
 			return tournamentSystem.unregisterTournamentParticipant(text, found.id)

@@ -20,6 +20,10 @@ unregisterTournamentParticipant(tournamentCode, participantId){
 	return this.tournamentSystem.unregisterTournamentParticipant(tournamentCode, participantId)
 }
 
+checkParticipantRegistration(participantName, tournamentParticipants){
+	return this.tournamentSystem.checkParticipantRegistration(participantName, tournamentParticipants)
+}
+
 //Matches
 
 getTournamentMatches(tournamentCode){
@@ -29,6 +33,7 @@ getTournamentMatches(tournamentCode){
 declareMatchWinner(tournamentCode, matchId, winnerId, score='0-0'){
 	return this.tournamentSystem.declareMatchWinner(tournamentCode, matchId, winnerId, score)
 }
+
 
 
 
