@@ -21,8 +21,12 @@ client.registry
 	.registerCommandsIn(__dirname + "/commands");
 
 
-client.login(token);
-console.log("Tournament Bot is ready")
+client.login(token).then(function(result){
+	console.log("Tournament Bot is ready")
+}).catch(function(err){
+	console.log("Erreur lors du lancement du client Discord : " + err)
+});
+
 
 
 

@@ -153,7 +153,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 	//--------------------------------------------------------
 
 	//Index
-	getTournamentMatches(tournamentCode){
+	getTournamentMatches(tournamentCode, tournamentParticipants){
 		console.log("on est là?")
 		return new Promise(function(resolve, reject){
 			client.matches.index({
@@ -175,11 +175,14 @@ class ChallongeTournamentSystem extends TournamentSystem {
 								state : match.state,
 								scheduled_time : match.scheduledTime,
 								player1Id : match.player1Id, 
-								player2Id : match.player2Id
+								player2Id : match.player2Id, 
+								player1Name : (match.player1Id != null) ? tournamentParticipants[match.player1Id] : "TBD",
+								player2Name : (match.player2Id != null) ? tournamentParticipants[match.player2Id] : "TBD"
 							}
 						})
 						return resolve(arrayM)
 					} else {
+						//TODO : Faut vérifier ce bout de code!! 
 						console.log('getTrMatches - Error')
 						var reason = "Le tirage au sort n'a pas encore été effectué. Votre prochain match est donc encore inconnu."
 						return reject(reason)
@@ -201,7 +204,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 					winnerId: winnerId
 				},
 				callback: (err, data) => {
-					//console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
+					console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
 					if(err){
 						var reason = "Il y a eu une erreur lors de la déclaration du vainqueur. Voir avec l'admin"
 						return reject(reason)

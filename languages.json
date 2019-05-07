@@ -104,11 +104,25 @@
 				"fr": "votre désinscription au tournoi a bien été prise en compte"
 			}
 		}, {
-			"key": "tournament-system-next-match-error",
+			"key": "tournament-next-match-prefix",
+			"languages": {
+				"en": "",
+				"es": "daa",
+				"fr": "Recherche de votre prochain match pour le tournoi "
+			}
+		}, {
+			"key": "tournament-system-next-match-tournament-not-started",
 			"languages": {
 				"en": "",
 				"es": "",
-				"fr": "Le tirage au sort n'a pas encore été effectué. Votre prochain match est donc encore inconnu."
+				"fr": " le tirage au sort n'a pas encore été effectué. Votre prochain match est donc encore inconnu."
+			}
+		}, {
+			"key": "tournament-system-tournament-is-finished",
+			"languages": {
+				"en": "",
+				"es": "",
+				"fr": " le tournoi est terminé, il n y a plus de matchs à jouer."
 			}
 		}, {
 			"key": "tournament-system-winner-is-error",
@@ -192,7 +206,7 @@
 			"languages": {
 				"en": "",
 				"es": "",
-				"fr": "Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D"
+				"fr": "aucun match restant à jouer n'a été trouvé."
 			}
 		}, {
 			"key": "next-match-summary-unknown-opponent1",

@@ -26,15 +26,29 @@ checkParticipantRegistration(participantName, tournamentParticipants){
 
 //Matches
 
-getTournamentMatches(tournamentCode){
-	return this.tournamentSystem.getTournamentMatches(tournamentCode)
+getTournamentMatches(tournamentCode, tournamentParticipants){
+	return this.tournamentSystem.getTournamentMatches(tournamentCode, tournamentParticipants)
+}
+
+getOwnMatches(participantId, matches){
+	return this.tournamentSystem.getOwnMatches(participantId, matches)
 }
 
 declareMatchWinner(tournamentCode, matchId, winnerId, score='0-0'){
 	return this.tournamentSystem.declareMatchWinner(tournamentCode, matchId, winnerId, score)
 }
 
+getParticipantMatches(participantId, matches){
+	return this.tournamentSystem.getOwnMatches(participantId, matches)
+}
 
+getOpenedMatches(matches){
+	return this.tournamentSystem.getOpenedMatches(matches)
+}
+
+getMatchesByRound(matches){
+	return this.tournamentSystem.getMatchesByRound(matches)
+}
 
 
 getTournamentSystemName(){

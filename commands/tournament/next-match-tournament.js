@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
 const tournamentSystem = new TournamentSystemAccess('challonge')
+const LanguageManager = require('../../api/user-settings/language-manager')
 
 class NextMatchTournamentCommand extends Commando.Command {
 
@@ -19,6 +20,7 @@ class NextMatchTournamentCommand extends Commando.Command {
         }]
 
     	});
+    this.languageManager = new LanguageManager();
     
 	}
 
@@ -29,6 +31,8 @@ class NextMatchTournamentCommand extends Commando.Command {
 		var participantId = ""
 		var participantIds = [];
 		var that = this
+		let prefix = that.languageManager.getI18NString("tournament-next-match-prefix") + text
+								+ " : "
 
 		var authorName;
 		//Know where message comes from
@@ -52,37 +56,37 @@ class NextMatchTournamentCommand extends Commando.Command {
 			}, {});
 
 			//Rechercher les prochains matchs qui auront lieu
-			return tournamentSystem.getTournamentMatches(text)
+			return tournamentSystem.getTournamentMatches(text, participantIds)
 			
 		}).then(function(matches){
-			var found = matches.find(function(match){
-				return (match.state == 'open' || match.state == 'pending') && (match.player1Id == participantId || match.player2Id == participantId)
-			})
-			if(!found){
-				throw "Votre prochain match n'a pas été trouvé. Vous avez donc été éliminé ou n'avez plus de matchs à faire? Bonne chance pour la suite ;D"
+			console.log("Matches : " + JSON.stringify(matches))
+			var openedMatches = tournamentSystem.getOpenedMatches(matches)
+			console.log("AllPlayerMatches : " + JSON.stringify(openedMatches))
+			var found = tournamentSystem.getOwnMatches(participantId, openedMatches)
+
+			if(found.length != 1){
+				throw("Erreur pas encore gérée ;)")
 			}
-			var nextMatchSummary = that.buildMatchSummary(participantId, found, participantIds)
+
+			var nextMatchSummary = that.buildMatchSummary(found[0])
 			message.reply(nextMatchSummary)
 		})
 		.catch(function(errorReason){
-			message.reply(errorReason)	
+			message.reply(prefix + errorReason)
 		})
 		
 	}
 
-	buildMatchSummary(participantId, matchData, participantsData){
+	//TODO : Utiliser un peu de Markdown - s'inspirer de google avec le foot
+	buildMatchSummary(matchData){
 		console.log('Haha');
 		var msgToBuild = ""
 		var opponentId = ""
 
-		//1 - Find opponent
-		if(matchData.player1Id == participantId) opponentId = matchData.player2Id
-		else opponentId = matchData.player1Id
-
 		if(opponentId == null){
 			msgToBuild += "L'adversaire de votre match (round " + matchData.round + ") est encore inconnu."
 		} else {
-			msgToBuild += "Votre prochain match (round " + matchData.round + ") vous opposera à : " + participantsData[opponentId] + ". "
+			msgToBuild += "Votre prochain match (round " + matchData.round + ") vous opposera à : " + matchData.opponentName + ". "
 		}
 
 		//2 - Find Scheduled time
