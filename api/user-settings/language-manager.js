@@ -1,14 +1,23 @@
 const fs = require('fs');
 const UserSettingsManager = require('./user-settings-manager')
+const Polyglot = require('node-polyglot');
 
-class LanguageManager {
+export class LanguageManager {
+
+	polyglot = new Polyglot();
 
 	constructor() {
 		var languagesJSON = fs.readFileSync('languages.json')
 		this.languageDictionary = JSON.parse(languagesJSON)
-		//Singleton à mettre en oeuvre
 		this.userSettingsManager = new UserSettingsManager();
+		this.loadLocale(this.userSettingsManager.getCurrentLanguage());
 	}
+
+	loadLocale(locale){
+		let localePhrases = this.languageDictionary[locale];
+		this.polyglot.extend(localePhrases);
+	}
+
 
 	//Constuire le résumé en markdown avec les flags
 	getAvailableLanguages() {
@@ -28,11 +37,13 @@ class LanguageManager {
 		return dictElement["languages"][language]
 	}
 
+	getPolyglotInstance(){
+		return this.polyglot;
+	}
+
 	getI18NString(key){
 		 let userLanguageKey = this.userSettingsManager.getCurrentLanguage()
 		 return this.getI18NStringForLanguage(key, userLanguageKey)
 	}
 
 }
-
-module.exports=LanguageManager
