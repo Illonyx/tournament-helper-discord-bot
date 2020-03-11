@@ -2,10 +2,11 @@
   "name": "tournament_bot",
   "version": "0.0.1",
   "description": "A discord bot dedicated to help to tournaments management",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node . --harmony",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run build && node ./dist/index.js",
+    "build": "tsc",
+    "lint": "eslint . & echo 'lint complete'"
   },
   "engines": {
     "node": "8.4.0"
@@ -13,6 +14,7 @@
   "author": "Skyice",
   "license": "ISC",
   "dependencies": {
+    "@types/node-polyglot": "^0.4.34",
     "better-sqlite3": "^5.4.3",
     "challonge": "^2.1.0",
     "discord.js": "^11.4.2",
@@ -23,5 +25,11 @@
     "request": "^2.88.0",
     "time": "^0.12.0",
     "uws": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.5",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint-config-airbnb-typescript": "^7.0.0"
   }
 }

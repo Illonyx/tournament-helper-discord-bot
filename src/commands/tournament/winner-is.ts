@@ -1,12 +1,18 @@
 const Commando = require('discord.js-commando');
-const TournamentSystemAccess = require('../../api/tournament-system/tournament-system-access')
-const tournamentSystem = new TournamentSystemAccess('challonge')
-const LanguageManager = require('../../api/user-settings/language-manager')
 
-class WinnerIsCommand extends Commando.Command {
+import {LanguageManager} from '../../api/user-settings/language-manager';
+import { TournamentSystem, Participant, Match } from '../../api/tournament-system/tournament-system';
+import { UserSettingsManager } from '../../api/user-settings/user-settings-manager';
+import { ConfigurationSingleton } from '../../configuration-singleton';
+
+export class WinnerIsCommand extends Commando.Command {
+
+	tournamentSystem: TournamentSystem;
+	userSettingsManager: UserSettingsManager;
+	languageManager: LanguageManager;
 
 	//Le type member ne peut pas être utilisé dans un message privé au bot
-	constructor(client) {
+	constructor(client: any) {
 
     super(client, {
         name: 'winner-is',
@@ -30,11 +36,13 @@ class WinnerIsCommand extends Commando.Command {
         }]
 
     	});
-    this.languageManager = new LanguageManager();
+		this.languageManager = ConfigurationSingleton.getInstance().getLanguageManager();
+		this.userSettingsManager = ConfigurationSingleton.getInstance().getUserSettingsManager();
+		this.tournamentSystem = this.userSettingsManager.getCurrentTournamentSystem();
     
 	}
 
-	async run(message, {text, winner, tournamentpseudo}){
+	async run(message: any, {text, winner, tournamentpseudo}: any){
 		
 		var winnerName = ''
 		if(tournamentpseudo != ''){
@@ -45,11 +53,11 @@ class WinnerIsCommand extends Commando.Command {
 
 		var participantId = ""
 		var winnerId = ""
-		var participantIds = [];
-		var participantMatch = {};
+		let participantIds: object = {};
+		let participantMatch: Match;
 		var that = this
 
-		var authorName;
+		let authorName: string;
 		//Know where message comes from
 		if(message.member){
 			authorName=message.member.displayName
@@ -58,31 +66,31 @@ class WinnerIsCommand extends Commando.Command {
 		}
 		console.log("ss" + authorName)
 
-		var getParticipantsTask = tournamentSystem.getTournamentParticipants(text)
-		getParticipantsTask.then(function(result){
+		var getParticipantsTask = this.tournamentSystem.getTournamentParticipants(text)
+		getParticipantsTask.then(function(result: Participant[]){
 
 			//Chercher si le participant est inscrit - si la personne s'est inscrite directement sur le tournoi, on essaie de matcher
-			var foundParticipant = tournamentSystem.checkParticipantRegistration(authorName, result)
+			var foundParticipant = this.tournamentSystem.checkParticipantRegistration(authorName, result);
 			participantId=foundParticipant.id
 
 			//Chercher si le nom du winner correspond à quelque chose
-			var foundWinner = tournamentSystem.checkParticipantRegistration(winnerName, result)
+			var foundWinner = this.tournamentSystem.checkParticipantRegistration(winnerName, result)
 			winnerId=foundWinner.id
 			
-			participantIds=result.reduce(function(prev, curr){
+			participantIds=result.reduce(function(prev: {[key: string]: string}, curr){
 				prev[curr.id]=curr.name
 				return prev
 			}, {});
 
 			//Rechercher les prochains matchs qui auront lieu
-			return tournamentSystem.getTournamentMatches(text, participantIds)
+			return this.tournamentSystem.getTournamentMatches(text, participantIds)
 			
 		}).then(function(matches){
 			
 			console.log("Matches : " + JSON.stringify(matches))
-			var openedMatches = tournamentSystem.getOpenedMatches(matches)
+			var openedMatches = this.tournamentSystem.getOpenedMatches(matches)
 			console.log("AllPlayerMatches : " + JSON.stringify(openedMatches))
-			var found = tournamentSystem.getOwnMatches(participantId, openedMatches)
+			var found = this.tournamentSystem.getOwnMatches(participantId, openedMatches)
 			if(found.length != 1){
 				throw "Technical Error!"
 			}
@@ -92,9 +100,9 @@ class WinnerIsCommand extends Commando.Command {
 			//lastroundover à gérer
 			var isLastRoundOver = that.isLastRoundOver(matches, participantMatch.round)
 			if(!isLastRoundOver){
-				throw that.languageManager.getI18NString("winner-is-round-not-finished")
+				throw that.languageManager.getPolyglotInstance().t("winner-is-round-not-finished");
 			}
-			return tournamentSystem.declareMatchWinner(text, participantMatch.id, winnerId)
+			return this.tournamentSystem.declareMatchWinner(text, participantMatch.id, winnerId)
 		}).then(function(result){
 			var confirmationMessage = that.whoIsTheWinner(participantId, winnerId, participantMatch, participantIds)
 			message.reply(confirmationMessage)
@@ -104,12 +112,12 @@ class WinnerIsCommand extends Commando.Command {
 		})		
 	}
 
-	isLastRoundOver(matches, currentRound){
+	isLastRoundOver(matches: Match[], currentRound: number){
 
 		//These are the first rounds, no need to wait
 		if(currentRound == 1) return true;
 
-		var matchesByRound = tournamentSystem.getMatchesByRound(matches)
+		var matchesByRound = this.tournamentSystem.getMatchesByRound(matches)
 		
 		var lastRound = currentRound - 1
 		var allRoundMatches = matchesByRound[lastRound + ""]
@@ -125,7 +133,7 @@ class WinnerIsCommand extends Commando.Command {
 	}
 
 	//TODO : A refaire aussi avec build Summary
-	whoIsTheWinner(participantId, winnerId, matchData, participantsData){
+	whoIsTheWinner(participantId: string, winnerId: string, matchData: Match, participantsData: any){
 
 		var msgToBuild = ""
 		var opponentId = ""
@@ -147,5 +155,3 @@ class WinnerIsCommand extends Commando.Command {
 
 
 }
-
-module.exports=WinnerIsCommand;
