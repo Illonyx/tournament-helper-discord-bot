@@ -1,15 +1,20 @@
 {
-	"languages": [{
-			"key": "fr",
-			"name": "Français"
-		},
+	"languages": [
 		{
 			"key": "en",
-			"name": "English"
+			"name": "English",
+			"icon": "flag_us"
+		},
+		{
+			"key": "fr",
+			"name": "Français",
+			"icon": "flag_fr"
 		}
 	],
 	"dictionary": {
 		"fr": {
+			"setlanguage-choose": "Veuillez choisir un des langages supportés.",
+			"setlanguage-chosen": "La langue du bot est désormais le Français. ",
 			"tournament-system-tournament-not-found-error": "Le tournoi n'a pas été trouvé : le code du tournoi a-t-il été bien saisi?",
 			"tournament-system-participant-not-found": "action non effectuée, impossible de trouver dans la liste des participants du tournoi (est-il bien inscrit?) le joueur suivant : ",
 			"tournament-join-prefix": "Résultats de l'inscription au tournoi ",
@@ -35,6 +40,8 @@
 			"leave-command-already-left": "vous n'êtes pas inscrit à ce tournoi, vous ne pouvez donc pas vous en désinscrire :-) "
 		},
 		"en": {
+			"setlanguage-choose": "Please pick one of the currently available languages.",
+			"setlanguage-chosen": "The bot's language has been set to English",
 			"tournament-system-tournament-not-found-error": "en",
 			"tournament-system-participant-not-found": "enaction non effectuée, impossible de trouver dans la liste des participants du tournoi (est-il bien inscrit?) le joueur suivant : ",
 			"tournament-join-prefix": "enRésultats de l'inscription au tournoi ",

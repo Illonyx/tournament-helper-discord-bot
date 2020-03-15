@@ -4,6 +4,9 @@ import Polyglot from 'node-polyglot';
 import {UserSettingsManager} from './user-settings-manager';
 
 export class BotKeys {
+
+	setlanguage_choose: string;
+	setlanguage_chosen: string;
 	tournament_system_tournament_not_found_error: string;
 	tournament_system_participant_not_found: string;
 	tournament_join_prefix: string;
@@ -30,6 +33,8 @@ export class BotKeys {
 
 	constructor();
 	constructor(
+		setlanguage_choose: string = "setlanguage-choose",
+		setlanguage_chosen: string = "setlanguage-chosen",
 		tournament_system_tournament_not_found_error: string = 'tournament-system-tournament-not-found-error',
 		tournament_system_participant_not_found: string = 'tournament-system-participant-not-found',
 		tournament_join_prefix: string = "tournament-join-prefix",
@@ -55,6 +60,8 @@ export class BotKeys {
 		leave_command_already_left: string='leavecommand-already-left'
 	)
 	{
+		this.setlanguage_choose = setlanguage_choose;
+		this.setlanguage_chosen = setlanguage_chosen;
 		this.tournament_system_tournament_not_found_error = tournament_system_tournament_not_found_error;
 		this.tournament_system_participant_not_found = tournament_system_participant_not_found;
 		this.tournament_join_prefix = tournament_join_prefix;
@@ -84,6 +91,7 @@ export class BotKeys {
 export interface LanguageItem {
 	key: string,
 	name: string,
+	icon: string,
 	description?: string
 }
 
@@ -98,7 +106,7 @@ export class LanguageManager {
 	constructor(private userSettingsManager: UserSettingsManager) {
 		this.loadLanguagesFile();
 		this.userSettingsManager = userSettingsManager;
-		this.loadLocale(this.userSettingsManager.getCurrentLanguage());
+		this.loadLocale();
 	}
 
 	loadLanguagesFile() {
@@ -111,8 +119,9 @@ export class LanguageManager {
 		});
 	}
 
-	loadLocale(locale: string): void {
-		let localePhrases: BotKeys = this.languageDictionary.get(locale);
+	loadLocale(): void {
+		let localeInDb = this.userSettingsManager.getCurrentLanguage();
+		let localePhrases: BotKeys = this.languageDictionary.get(localeInDb);
 		if(!localePhrases) throw "Locale not found";
 		this.polyglot.replace(localePhrases);
 	}

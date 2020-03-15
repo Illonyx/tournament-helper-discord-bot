@@ -1,8 +1,9 @@
 import { UserSettingsManager } from "./api/user-settings/user-settings-manager";
 import { LanguageManager } from "./api/user-settings/language-manager";
+import { ConfigurationSingleton } from "./configuration-singleton";
 
 const Commando = require('discord.js-commando');
-const challonge = require('challonge')
+const challonge = require('challonge');
 
 // S'inspirer de ça!!
 // https://github.com/discordjs/Commando/tree/master/test
@@ -24,8 +25,6 @@ var client = new Commando.Client({
 	commandPrefix : botCommandPrefix
 });
 
-console.log("dir :" + __dirname);
-
 // ------------------------------------------------------------
 // Configuration du client
 // ------------------------------------------------------------
@@ -35,7 +34,11 @@ client.registry
 	.registerDefaultGroups()
 	.registerDefaultCommands()
 	.registerGroup('tournament', 'Commandes tournoi')
-	.registerCommandsIn(__dirname + "/commands/tournament");
+	.registerCommandsIn(__dirname + "/commands/tournament")
+	.registerGroup('general', 'Commandes générales')
+	.registerCommandsIn(__dirname + "/commands/general");
+
+	ConfigurationSingleton.getInstance().getUserSettingsManager();
 	
 // -------------------------------------------
 // Lancement du bot

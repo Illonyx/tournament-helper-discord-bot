@@ -14,6 +14,7 @@
   "author": "Skyice",
   "license": "ISC",
   "dependencies": {
+    "@types/better-sqlite3": "^5.4.0",
     "@types/node-polyglot": "^0.4.34",
     "better-sqlite3": "^5.4.3",
     "challonge": "^2.1.0",
