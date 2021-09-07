@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "npm run build && node ./dist/index.js",
-    "build": "tsc",
+    "build": "npx tsc",
     "lint": "eslint . & echo 'lint complete'"
   },
   "engines": {
