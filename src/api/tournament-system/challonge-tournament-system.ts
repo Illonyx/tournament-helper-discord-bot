@@ -1,12 +1,14 @@
+import { TournamentSystem, Participant, Match } from "./tournament-system";
+import { LanguageManager } from "../user-settings/language-manager";
+
 const challonge = require('challonge')
-const TournamentSystem = require('./tournament-system')
 const client = challonge.createClient({
 	apiKey: process.env.CHALLONGE_USER_TOKEN
 });
 
 
 //Faut bien convertir ce format tout pourri avant de faire autre chose :D
-var convert = function(challongeJson, objectKey){
+var convert = function(challongeJson: any, objectKey: string){
 	var array = []
 	for(var i=0;i<Object.keys(challongeJson).length;i++){
 		var tournamentJson = challongeJson["" + i][objectKey]
@@ -17,7 +19,7 @@ var convert = function(challongeJson, objectKey){
   return array
 }
 
-class ChallongeTournamentSystem extends TournamentSystem {
+export class ChallongeTournamentSystem extends TournamentSystem {
 	
 	constructor() {
 		super('challonge')
@@ -27,14 +29,13 @@ class ChallongeTournamentSystem extends TournamentSystem {
 	// PARTICIPANTS
 	// ------------------------------------------------------
 
-
-	getTournamentParticipants(tournamentCode){
+	getTournamentParticipants(tournamentCode: string): Promise<Participant[] | string> {
 		var that = this;
 		return new Promise(function(resolve, reject){
 			
 			client.participants.index({
 				id:tournamentCode,
-				callback: (err, data) => {
+				callback: (err: any, data: any) => {
 					//console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
 					if(err == null){
 						console.log('getTrParticipants - Success')
@@ -53,10 +54,10 @@ class ChallongeTournamentSystem extends TournamentSystem {
 								waiting_list : participant.on_waiting_list
 							}
 						})
-						return resolve(arrayM)
+						return resolve(arrayM);
 					} else {
 						console.log('getTrParticipants - Error')
-						var reason = that.languageManager.getI18NString("tournament-system-tournament-not-found-error")
+						var reason = that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_tournament_not_found_error);
 						return reject(reason)
 					}
 				}
@@ -65,8 +66,8 @@ class ChallongeTournamentSystem extends TournamentSystem {
 
 	}
 
-	registerTournamentParticipant(tournamentCode, participantName){
-		var that = this
+	registerTournamentParticipant(tournamentCode: string, participantName: string): Promise<string> {
+		var that = this;
 		return new Promise(function(resolve, reject){
 			
 			console.log("Entrée dans la méthode registerTournamentParticipant")
@@ -77,18 +78,20 @@ class ChallongeTournamentSystem extends TournamentSystem {
 				participant: {
 					name: encodeURI("" + participantName)
 				},
-				callback: (err, data) => {
+				callback: (err: any, data: any) => {
 					console.error("registerTournamentParticipant - Erreur rencontrée lors de l'inscription" + JSON.stringify(err))
 					
 					if(err) {
 						
 						switch (err.statusCode) {
 							case 401:
-							reason += that.languageManager.getI18NString("tournament-system-unauthorized-access")
+							reason += that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_unauthorized_access)
 							break;
+
 							case 422:
-							reason += that.languageManager.getI18NString("tournament-system-registration-closed")
+							reason += that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_registration_closed);
 							break;
+
 							default:
 							reason += "Erreur technique lors de l'inscription au tournoi : demander à l'admin"
 							break;
@@ -100,9 +103,9 @@ class ChallongeTournamentSystem extends TournamentSystem {
 						console.log("registerTournamentParticipant - Succès lors de l inscription")
 
 						if(data.participant.onWaitingList){
-							reason += that.languageManager.getI18NString("tournament-system-join-success-waiting-list")
+							reason += that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_join_success_waiting_list)
 						} else {
-							reason += that.languageManager.getI18NString("tournament-system-join-success")
+							reason += that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_join_success);
 						}
 						return resolve(reason)
 					}
@@ -113,7 +116,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 		})
 	}
 
-	unregisterTournamentParticipant(tournamentCode, participantId){
+	unregisterTournamentParticipant(tournamentCode: string, participantId: string): Promise<string> {
 		var that = this;
 		console.log("Entrée dans la fonction unregisterTournamentParticipant params : " + tournamentCode + "," + participantId)
 
@@ -121,21 +124,21 @@ class ChallongeTournamentSystem extends TournamentSystem {
 			client.participants.destroy({
 				id:tournamentCode,
 				participantId: participantId,
-				callback: (err, data) => {
+				callback: (err: any, data: any) => {
 					if(err) {
 						console.error("unregisterTournamentParticipant - Erreur rencontrée lors de l'inscription" + JSON.stringify(err))
-						var reason = that.languageManager.getI18NString("tournament-system-leave-error")
+						var reason = that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_leave_error);
 						return reject(reason)
 					} else {
 						console.log("Received data" + JSON.stringify(data))
-						let reason = that.languageManager.getI18NString("tournament-system-leave-error")
+						let reason;
 						if (data.participant != null) 
 						{
 							if(data.participant.active == false || data.participant.reactivable == true){
-								reason = that.languageManager.getI18NString("tournament-system-participant-disactivated")
+								reason = that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_participant_disactivated);
 							} else {
 								//Le tournoi n'était pas commencé, le participant est directement disparu du tournoi
-								reason = that.languageManager.getI18NString("tournament-system-leave-success")
+								reason = that.languageManager.getPolyglotInstance().t(LanguageManager.I18NKeys.tournament_system_leave_success);
 							}
 							return resolve(reason)
 						}
@@ -153,12 +156,11 @@ class ChallongeTournamentSystem extends TournamentSystem {
 	//--------------------------------------------------------
 
 	//Index
-	getTournamentMatches(tournamentCode, tournamentParticipants){
-		console.log("on est là?")
+	getTournamentMatches(tournamentCode: string, tournamentParticipants: {[key: string]: string}): Promise<Match[] | string> {
 		return new Promise(function(resolve, reject){
 			client.matches.index({
 				id:tournamentCode,
-				callback: (err, data) => {
+				callback: (err: any, data: any) => {
 					//console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
 					if(err == null){
 						console.log('getTrMatches - Success')
@@ -193,8 +195,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 
 	}
 
-	declareMatchWinner(tournamentCode, matchId, winnerId, score='0-0'){
-		console.log("on est là?")
+	declareMatchWinner(tournamentCode: string, matchId: string, winnerId:string, score='0-0'): Promise<string> {
 		return new Promise(function(resolve, reject){
 			client.matches.update({
 				id: tournamentCode,
@@ -203,7 +204,7 @@ class ChallongeTournamentSystem extends TournamentSystem {
 					scoresCsv: score,
 					winnerId: winnerId
 				},
-				callback: (err, data) => {
+				callback: (err:any, data:any) => {
 					console.log("err : " + JSON.stringify(err) + " / data : " + JSON.stringify(data))
 					if(err){
 						var reason = "Il y a eu une erreur lors de la déclaration du vainqueur. Voir avec l'admin"
@@ -218,8 +219,4 @@ class ChallongeTournamentSystem extends TournamentSystem {
 		})
 	}
 
-	//Submit score
-
 }
-
-module.exports=ChallongeTournamentSystem
